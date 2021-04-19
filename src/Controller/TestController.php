@@ -15,7 +15,7 @@ class TestController
     }
 
     /**
-     * @Route("test/{age}, name="test", methods={"GET", "POST"}, defaults={0}, requirements={\d+}, schemes={"http", "https})
+     * @Route("/test/{age}", name="test", methods={"GET", "POST"}, defaults={"age"=0}, requirements={"age"="\d+"}, schemes={"http", "https"})
      * @param Request $request
      * @param $age
      * @return Response
