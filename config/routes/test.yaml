@@ -1,0 +1,15 @@
+#test:
+#    path: /test
+#    controller: App\Controller\TestController::test
+
+# Route paramétrique
+#test:
+#  path: /test/{age}
+#  controller: App\Controller\TestController::test
+#  methods: [GET, POST]
+#  schemes: [https, http]
+#  defaults:
+#    age: 0
+#  requirements:
+#    age: \d+
+
