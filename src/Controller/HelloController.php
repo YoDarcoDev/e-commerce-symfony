@@ -2,36 +2,33 @@
 
 namespace App\Controller;
 
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
-use Twig\Environment;
 
 
-class HelloController
+class HelloController extends AbstractController
 {
+
     /**
      * @Route("/hello/{prenom}", name="hello", defaults={"prenom"="world"}, methods={"GET", "POST"})
      * @param $prenom
-     * @param Environment $twig
      * @return Response
      */
-    public function hello($prenom, Environment $twig) : Response
+    public function hello($prenom)
     {
-        $html = $twig->render("hello.html.twig", [
+        return $this->render("hello.html.twig", [
             'prenom' => $prenom,
         ]);
-        return new Response($html);
     }
 
     /**
      * @Route("/example", name="example")
      */
-    public function example(Environment $twig)
+    public function example()
     {
-        $html = $twig->render("example.html.twig", [
+        return $this->render("example.html.twig", [
             'age' => 33
         ]);
-        return new Response($html);
     }
 }
 
