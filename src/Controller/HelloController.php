@@ -19,14 +19,19 @@ class HelloController
     {
         $html = $twig->render("hello.html.twig", [
             'prenom' => $prenom,
-            'formateur' => [
-                'prenom' => 'Lior',
-                'nom' => 'Chamla',
-                'age' => 33
-            ]
         ]);
         return new Response($html);
     }
 
+    /**
+     * @Route("/example", name="example")
+     */
+    public function example(Environment $twig)
+    {
+        $html = $twig->render("example.html.twig", [
+            'age' => 33
+        ]);
+        return new Response($html);
+    }
 }
 
