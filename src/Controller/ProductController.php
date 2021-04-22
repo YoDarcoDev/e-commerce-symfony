@@ -16,10 +16,12 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
 
@@ -102,6 +104,10 @@ class ProductController extends AbstractController
             $em->persist($product);
             $em->flush();
 
+            return $this->redirectToRoute('product_show', [
+                'category_slug' => $product->getCategory()->getSlug(),
+                'slug' => $product->getSlug()
+            ]);
         }
 
         // Afficher le formulaire
@@ -110,5 +116,47 @@ class ProductController extends AbstractController
         return $this->render('product/create.html.twig', [
             'formView' => $formView
         ]);
+    }
+
+
+    /**
+     * @Route("/admin/product/{id}/edit", name="product_edit")
+     * @param $id
+     * @param ProductRepository $productRepository
+     * @param Request $request
+     * @param EntityManagerInterface $em
+     * @return Response
+     */
+    public function edit($id, ProductRepository $productRepository, Request $request, EntityManagerInterface $em): Response
+    {
+        $product = $productRepository->find($id);
+
+        // Création du formulaire
+        $form = $this->createForm(ProductType::class, $product);
+
+        // Gérer la requête
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted()) {
+
+            // Enregistrer en BDD
+            $em->flush();
+
+            // Redirection vers page produit
+            return $this->redirectToRoute('product_show', [
+                'category_slug' => $product->getCategory()->getSlug(),
+                'slug' => $product->getSlug()
+            ]);
+        }
+
+        // Afficher le formulaire
+        $formView = $form->createView();
+
+        return $this->render('product/edit.html.twig', [
+            "product" => $product,
+            "formView" => $formView
+        ]);
+
+
     }
 }
