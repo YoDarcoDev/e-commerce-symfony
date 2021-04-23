@@ -32,8 +32,8 @@ class CategoryController extends AbstractController
      * @param EntityManagerInterface $em
      * @return Response
      */
-    public function create(Request $request, SluggerInterface $slugger, EntityManagerInterface $em) {
-
+    public function create(Request $request, SluggerInterface $slugger, EntityManagerInterface $em): Response
+    {
         // Création du formulaire
         $category = new Category;
         $form = $this->createForm(CategoryType::class, $category);
@@ -42,7 +42,7 @@ class CategoryController extends AbstractController
         $form->handleRequest($request);
 
 
-        if ($form->isSubmitted()) {
+        if ($form->isSubmitted() && $form->isValid()) {
 
             // Création du slug
             $category->setSlug(strtolower($slugger->slug($category->getName())));
@@ -69,17 +69,21 @@ class CategoryController extends AbstractController
      * @param CategoryRepository $categoryRepository
      * @param Request $request
      * @param EntityManagerInterface $em
+     * @param SluggerInterface $slugger
      * @return Response
      */
-    public function edit($id, CategoryRepository $categoryRepository, Request $request, EntityManagerInterface $em) {
-
+    public function edit($id, CategoryRepository $categoryRepository, Request $request, EntityManagerInterface $em, SluggerInterface $slugger): Response
+    {
         $category = $categoryRepository->find($id);
 
         $form = $this->createForm(CategoryType::class, $category);
 
         $form->handleRequest($request);
 
-        if ($form->isSubmitted()) {
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            // Création du slug
+            $category->setSlug(strtolower($slugger->slug($category->getName())));
 
             // Enregistrer en BDD
             $em->flush();
