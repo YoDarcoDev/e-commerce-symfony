@@ -7,15 +7,13 @@ use App\Entity\Product;
 use App\Form\DataTransformer\CentimesTransformer;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class ProductType extends AbstractType
 {
@@ -24,21 +22,25 @@ class ProductType extends AbstractType
         $builder
              ->add('name', TextType::class, [
                  'label' => 'Nom du produit',
-                 'attr' => ['placeholder' => 'Saisir le nom du produit']
+                 'attr' => ['placeholder' => 'Saisir le nom du produit'],
+                 'required' => false
              ])
              ->add('shortDescription', TextareaType::class, [
                  'label' => 'Description courte',
-                 'attr' => ['placeholder' => 'Saisir une description du produit']
+                 'attr' => ['placeholder' => 'Saisir une description du produit'],
+                 'required' => false
              ])
 
              ->add('price', MoneyType::class, [
                  'label' => 'Prix du produit ',
-                 'attr' => ['placeholder' => 'Saisir le prix du produit en €']
+                 'attr' => ['placeholder' => 'Saisir le prix du produit en €'],
+                 'required' => false
              ])
 
              ->add('mainPicture', UrlType::class, [
                  'label' => 'Image',
-                 'attr' => ['placeholder' => 'Saisir une url d\'image']
+                 'attr' => ['placeholder' => 'Saisir une url d\'image'],
+                 'required' => false
              ])
 
              ->add('category', EntityType::class, [
