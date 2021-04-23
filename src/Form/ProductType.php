@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\Category;
 use App\Entity\Product;
+use App\Form\DataTransformer\CentimesTransformer;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
@@ -49,25 +50,9 @@ class ProductType extends AbstractType
              ]);
 
 
-        $builder->get('price')->addModelTransformer(new CallbackTransformer(
+        // Gestion de la transformation des prix
+        $builder->get('price')->addModelTransformer(new CentimesTransformer);
 
-            // Réception des données on les divise par 100
-            function($value) {
-                if ($value === null) {
-                    return;
-                }
-                return $value / 100;
-
-            },
-
-            // Soumission des données par le user on multiplie par 100 pour les envoyer en BDD
-            function($value) {
-                if ($value === null) {
-                    return;
-                }
-                return $value * 100;
-            }
-        ));
     }
 
     public function configureOptions(OptionsResolver $resolver)
