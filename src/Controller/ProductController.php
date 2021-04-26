@@ -21,7 +21,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class ProductController extends AbstractController
 {
     /** Permet d'afficher des produits en fonction d'une catégory
-     * @Route("/{slug}", name="product_category")
+     * @Route("/{slug}", name="product_category", priority=-1)
      * @param $slug
      * @param CategoryRepository $categoryRepository
      * @return Response
