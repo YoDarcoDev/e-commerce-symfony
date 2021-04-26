@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
     <head>
         <meta charset="UTF-8">
         <title>{% block title %}Welcome!{% endblock %}</title>
@@ -15,9 +15,12 @@
         {% endblock %}
     </head>
     <body>
+
         {% include "shared/_navbar.html.twig" %}
+
         <div class="container pt-5">
             {% block body %}{% endblock %}
         </div>
+
     </body>
 </html>
