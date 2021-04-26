@@ -77,9 +77,10 @@ class LoginFormAuthenticator extends AbstractGuardAuthenticator
         return new RedirectResponse('/');
     }
 
-    public function start(Request $request, AuthenticationException $authException = null)
+    public function start(Request $request, AuthenticationException $authException = null): RedirectResponse
     {
-        // todo
+        // Si quelqu'un de non connecté essaye d'accéder à une ressource pour laquelle il faut être connecté, la méthode start sera appelée et redirige le user
+        return new RedirectResponse('/login');
     }
 
     public function supportsRememberMe()
