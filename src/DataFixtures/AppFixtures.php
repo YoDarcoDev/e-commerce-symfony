@@ -3,18 +3,27 @@
 namespace App\DataFixtures;
 
 use App\Entity\Category;
+use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use App\Entity\Product;
 use Faker\Factory;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
 class AppFixtures extends Fixture
 {
     protected $slugger;
+    protected $encoder;
 
-    public function __construct(SluggerInterface $slugger) {
+    /**
+     * AppFixtures constructor.
+     * @param SluggerInterface $slugger
+     * @param UserPasswordEncoderInterface $encoder
+     */
+    public function __construct(SluggerInterface $slugger, UserPasswordEncoderInterface $encoder) {
         $this->slugger = $slugger;
+        $this->encoder = $encoder;
     }
 
 
@@ -24,6 +33,36 @@ class AppFixtures extends Fixture
         $faker->addProvider(new \Liior\Faker\Prices($faker));
         $faker->addProvider(new \Bezhanov\Faker\Provider\Commerce($faker));
         $faker->addProvider(new \Bluemmb\Faker\PicsumPhotosProvider($faker));
+
+
+        // Création d'un user admin
+        $admin = new User;
+
+        // Hachage du mot de passe
+        $hash = $this->encoder->encodePassword($admin, "password");
+
+        $admin
+            ->setEmail('admin@gmail.com')
+            ->setFullName("Admin")
+            ->setPassword($hash)
+            ->setRoles(['ROLE_ADMIN']);
+
+        $manager->persist($admin);
+
+
+        // Création des utilisateurs
+        for ($i = 0; $i < 5; $i++) {
+            $user = new User;
+
+            $hash = $this->encoder->encodePassword($user, 'password');
+
+            $user
+                ->setEmail("user$i@gmail.com")
+                ->setFullName($faker->name())
+                ->setPassword($hash);
+
+            $manager->persist($user);
+        }
 
         // Création de la catégorie (nom, slug)
         for ($c = 0; $c < 3; $c++) {
