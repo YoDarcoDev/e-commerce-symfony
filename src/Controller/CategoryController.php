@@ -6,11 +6,13 @@ use App\Entity\Category;
 use App\Form\CategoryType;
 use App\Repository\CategoryRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\String\Slugger\SluggerInterface;
@@ -72,22 +74,15 @@ class CategoryController extends AbstractController
      * @param Request $request
      * @param EntityManagerInterface $em
      * @param SluggerInterface $slugger
-     * @param Security $security
      * @return Response
      */
-    public function edit($id, CategoryRepository $categoryRepository, Request $request, EntityManagerInterface $em, SluggerInterface $slugger, Security $security ): Response
+    public function edit($id, CategoryRepository $categoryRepository, Request $request, EntityManagerInterface $em, SluggerInterface $slugger): Response
     {
-        $user = $security->getUser();
-
-        if ($user === null) {
-            return $this->redirectToRoute('security_login');
-        }
-
-        if (!in_array("ROLE_ADMIN", $user->getRoles())) {
-            throw new AccessDeniedHttpException("Vous n'avez pas le droit d'accéder à cette ressource");
-        }
-
         $category = $categoryRepository->find($id);
+
+        if (!$category) {
+            throw new NotFoundHttpException("Cette catégorie n'existe pas");
+        }
 
         $form = $this->createForm(CategoryType::class, $category);
 
