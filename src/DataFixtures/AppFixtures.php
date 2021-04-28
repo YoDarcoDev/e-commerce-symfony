@@ -3,6 +3,8 @@
 namespace App\DataFixtures;
 
 use App\Entity\Category;
+use App\Entity\Purchase;
+use App\Entity\PurchaseItem;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
@@ -50,9 +52,11 @@ class AppFixtures extends Fixture
         $manager->persist($admin);
 
 
-        // Création des utilisateurs
+        // CREATION DES USERS
+        $users = []; // Tableau pour les purchases
+
         for ($i = 0; $i < 5; $i++) {
-            $user = new User;
+            $user = new User();
 
             $hash = $this->encoder->encodePassword($user, 'password');
 
@@ -61,10 +65,15 @@ class AppFixtures extends Fixture
                 ->setFullName($faker->name())
                 ->setPassword($hash);
 
+            // Ajout des users dans un tableau
+            $users[] = $user;
+
             $manager->persist($user);
         }
 
-        // Création de la catégorie (nom, slug)
+        // CREATION DES CATEGORIES (nom, slug)
+        $products = [];
+
         for ($c = 0; $c < 3; $c++) {
             $category = new Category;
             $category
@@ -73,7 +82,7 @@ class AppFixtures extends Fixture
 
             $manager->persist($category);
 
-            // Création produits qui seront reliés à des categorise
+            // CREATION DES PRODUITS QUI SONT LIES A DES CATEGORIES
             for ($i = 0; $i < mt_rand(15, 20); $i++) {
                 $product = new Product;
                 $product
@@ -84,9 +93,50 @@ class AppFixtures extends Fixture
                     ->setShortDescription(($faker->paragraph()))
                     ->setMainPicture($faker->imageUrl(400, 400, true));
 
+                $products[] = $product;
+
                 $manager->persist($product);
             }
         }
+
+        // CREATION DES PURCHASES
+        for ($p = 0; $p < mt_rand(20, 40); $p++) {
+            $purchase = new Purchase;
+
+            $purchase
+                ->setFullName($faker->name)
+                ->setAddress($faker->streetAddress)
+                ->setPostalCode($faker->postcode)
+                ->setCity($faker->city)
+                ->setUser($faker->randomElement($users)) // Va prendre un élément au hasard de notre tableau $users
+                ->setTotal(mt_rand(2000, 30000))
+                ->setPurchasedAt($faker->dateTimeBetween('-6 months')); // Il y a 6 mois et maintenant
+
+            // Récupérer entre 3 et 5 produits de tous mes produits crées
+            $selectedProducts = $faker->randomElements($products, mt_rand(3, 5));
+
+            // Pour chacun de ces produits, création d'une ligne de commande
+            foreach($selectedProducts as $product) {
+                $purchaseItem = new PurchaseItem();
+                $purchaseItem
+                    ->setProduct($product)
+                    ->setQuantity(mt_rand(1, 3))
+                    ->setProductName($product->getName())
+                    ->setProductPrice($product->getprice())
+                    ->setTotal($purchaseItem->getProductPrice() * $purchaseItem->getQuantity())
+                    ->setPurchase($purchase);
+
+                $manager->persist($purchaseItem);
+            }
+
+            // Par défaut c'est PENDING, mais dans 90% des cas je le passerais en PAID
+            if ($faker->boolean(90)) {
+                $purchase->setStatus(Purchase::STATUS_PAID);
+            }
+
+            $manager->persist($purchase);
+        }
+
         $manager->flush();
     }
 }
