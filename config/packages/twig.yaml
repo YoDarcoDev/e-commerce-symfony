@@ -5,4 +5,4 @@ twig:
 
     globals:
         categoryRepository: "@App\\Repository\\CategoryRepository"
-
+        cartService: "@App\\Cart\\CartService"
