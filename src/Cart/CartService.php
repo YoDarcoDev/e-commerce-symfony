@@ -42,6 +42,14 @@ class CartService
 
 
     /**
+     * Permet de vider le panier une fois la commande terminée
+     */
+    public function empty()
+    {
+        $this->saveCart([]);
+    }
+
+    /**
      * Permet d'ajouter un produit au panier
      * @param int $id
      */
@@ -121,7 +129,7 @@ class CartService
 
     /**
      * Récupérer un tableau avec tous les produits du panier
-     * @return array
+     * @return CartItem[]
      */
     public function getDetailedCartItems() : array
     {
