@@ -6,6 +6,7 @@ use App\Cart\CartService;
 use App\Entity\Purchase;
 use App\Entity\PurchaseItem;
 use App\Form\CartConfirmationType;
+use App\Purchase\PurchasePersister;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -16,14 +17,15 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 class PurchaseConfirmationController extends AbstractController
 {
-    protected $router;
     protected $cartService;
     protected $em;
+    protected $persister;
 
-    public function __construct(CartService $cartService, EntityManagerInterface $em)
+    public function __construct(CartService $cartService, EntityManagerInterface $em, PurchasePersister $persister)
     {
         $this->cartService = $cartService;
         $this->em = $em;
+        $this->persister = $persister;
     }
 
     /**
@@ -48,10 +50,8 @@ class PurchaseConfirmationController extends AbstractController
             return $this->redirectToRoute('cart_show');
         }
 
-        // Si je ne suis pas connecté : on sort (Security)
-        $user = $this->getUser();
 
-       $cartItems = $this->cartService->getDetailedCartItems();
+        $cartItems = $this->cartService->getDetailedCartItems();
 
         // Si formulaire soumis, user connecté mais pas de produits dans le panier (CartService)
         if (count($cartItems) === 0) {
@@ -63,36 +63,12 @@ class PurchaseConfirmationController extends AbstractController
         /** @var Purchase */
         $purchase = $form->getData();
 
-        // Lier avec le user connecté (Security)
-        $purchase
-                ->setUser($user)
-                ->setPurchasedAt(new \DateTime())
-                ->setTotal($this->cartService->getTotal());
+        // Configurer et enregistrer la purchase
+        $this->persister->storePurchase($purchase);
 
-        $this->em->persist($purchase);
-
-        // Lier avec les produits du panier
-        foreach($cartItems as $cartItem) {
-            $purchaseItem = new PurchaseItem();
-            $purchaseItem
-                ->setPurchase($purchase)
-                ->setProduct($cartItem->product)
-                ->setProductName($cartItem->product->getName())
-                ->setProductPrice($cartItem->product->getPrice())
-                ->setQuantity($cartItem->quantity)
-                ->setTotal($cartItem->getTotal());
-
-            $this->em->persist($purchaseItem);
-        }
-
-        // Enregistrer la commande (EntityManagerInterface)
-        $this->em->flush();
-
-        // Vider le panier
-        $this->cartService->empty();
-
-        $this->addFlash('success', "La commande a bien été enregistrée");
-
-        return $this->redirectToRoute('purchases_index');
+        // Redirection vers la page de paiement
+        return $this->redirectToRoute('purchase_payment_form',[
+            'id' => $purchase->getId()
+        ]);
     }
 }

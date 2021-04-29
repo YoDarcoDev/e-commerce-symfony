@@ -24,6 +24,7 @@ class PurchasesListController extends AbstractController
         $user = $this->getUser();
 
 
+
         // Savoir qui est connecté -> Security
         // Passer le user connecté a twig afin d'afficher ses commandes -> Environment Twig, Response
         return $this->render('purchase/index.html.twig', [
